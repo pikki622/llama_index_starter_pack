@@ -41,7 +41,7 @@ def upload_file():
     global manager
     if 'file' not in request.files:
         return "Please send a POST request with a file", 400
-    
+
     filepath = None
     try:
         uploaded_file = request.files["file"]
@@ -57,7 +57,7 @@ def upload_file():
         # cleanup temp file
         if filepath is not None and os.path.exists(filepath):
             os.remove(filepath)
-        return "Error: {}".format(str(e)), 500
+        return f"Error: {str(e)}", 500
 
     # cleanup temp file
     if filepath is not None and os.path.exists(filepath):

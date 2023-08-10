@@ -65,15 +65,13 @@ def extract_terms(documents, term_extract_str, llm_name, model_temperature, api_
         for x in terms_definitions.split("\n")
         if x and "Term:" in x and "Definition:" in x
     ]
-    # parse the text into a dict
-    terms_to_definition = {
+    return {
         x.split("Definition:")[0]
         .split("Term:")[-1]
         .strip(): x.split("Definition:")[-1]
         .strip()
         for x in terms_definitions
     }
-    return terms_to_definition
 
 
 def insert_terms(terms_to_definition):
@@ -89,12 +87,10 @@ def initialize_index(llm_name, model_temperature, api_key):
 
     service_context = ServiceContext.from_defaults(llm_predictor=LLMPredictor(llm=llm))
 
-    index = load_index_from_storage(
+    return load_index_from_storage(
         StorageContext.from_defaults(persist_dir="./initial_index"),
         service_context=service_context,
     )
-
-    return index
 
 
 st.title("🦙 Llama Index Term Extractor 🦙")
@@ -153,14 +149,12 @@ with upload_tab:
             terms_docs = {}
             with st.spinner("Extracting (images may be slow)..."):
                 if document_text:
-                    terms_docs.update(
-                        extract_terms(
-                            [Document(document_text)],
-                            term_extract_str,
-                            llm_name,
-                            model_temperature,
-                            api_key,
-                        )
+                    terms_docs |= extract_terms(
+                        [Document(document_text)],
+                        term_extract_str,
+                        llm_name,
+                        model_temperature,
+                        api_key,
                     )
                 if uploaded_file:
                     Image.open(uploaded_file).convert("RGB").save("temp.png")
@@ -206,8 +200,7 @@ with query_tab:
         st.session_state["all_terms"] = DEFAULT_TERMS
 
     if "llama_index" in st.session_state:
-        query_text = st.text_input("Ask about a term or definition:")
-        if query_text:
+        if query_text := st.text_input("Ask about a term or definition:"):
             with st.spinner("Generating answer..."):
                 response = (
                     st.session_state["llama_index"]

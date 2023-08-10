@@ -35,8 +35,7 @@ def initialize_index():
 def query_index(query_text):
     """Query the global index."""
     global index
-    response = index.as_query_engine().query(query_text)
-    return response
+    return index.as_query_engine().query(query_text)
 
 
 def insert_into_index(doc_file_path, doc_id=None):
@@ -48,11 +47,11 @@ def insert_into_index(doc_file_path, doc_id=None):
 
     with lock:
         # Keep track of stored docs -- llama_index doesn't make this easy
-        stored_docs[document.doc_id] = document.text[0:200]  # only take the first 200 chars
+        stored_docs[document.doc_id] = document.text[:200]
 
         index.insert(document)
         index.storage_context.persist(persist_dir=index_name)
-        
+
         with open(pkl_name, "wb") as f:
             pickle.dump(stored_docs, f)
 
@@ -61,11 +60,10 @@ def insert_into_index(doc_file_path, doc_id=None):
 def get_documents_list():
     """Get the list of currently stored documents."""
     global stored_doc
-    documents_list = []
-    for doc_id, doc_text in stored_docs.items():
-        documents_list.append({"id": doc_id, "text": doc_text})
-
-    return documents_list
+    return [
+        {"id": doc_id, "text": doc_text}
+        for doc_id, doc_text in stored_docs.items()
+    ]
 
 
 if __name__ == "__main__":
