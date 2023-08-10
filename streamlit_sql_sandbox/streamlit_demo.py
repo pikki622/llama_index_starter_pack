@@ -38,14 +38,12 @@ def initialize_index(
         context_container = context_builder.build_context_container()
 
     service_context = ServiceContext.from_defaults(llm_predictor=LLMPredictor(llm=llm))
-    index = GPTSQLStructStoreIndex(
+    return GPTSQLStructStoreIndex(
         [],
         sql_database=sql_database,
         sql_context_container=context_container,
         service_context=service_context,
     )
-
-    return index
 
 
 @st.cache_resource
@@ -63,15 +61,13 @@ def initialize_chain(llm_name, model_temperature, lc_descrp, api_key, _sql_index
 
     memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
-    agent_chain = initialize_agent(
+    return initialize_agent(
         [sql_tool],
         llm,
         agent="chat-conversational-react-description",
         verbose=True,
         memory=memory,
     )
-
-    return agent_chain
 
 
 st.title("🦙 Llama Index SQL Sandbox 🦙")
@@ -178,7 +174,7 @@ with lc_tab:
         "Message:", value="Which restaurant has the most violations?"
     )
     if "lc_agent" in st.session_state and st.button("Send"):
-        model_input = "User: " + model_input
+        model_input = f"User: {model_input}"
         st.session_state["chat_history"].append(model_input)
         with st.spinner("Getting response..."):
             response = st.session_state["lc_agent"].run(input=model_input)

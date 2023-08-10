@@ -50,8 +50,9 @@ st.write(
 )
 
 index = None
-api_key = st.text_input("Enter your OpenAI API key here:", type="password")
-if api_key:
+if api_key := st.text_input(
+    "Enter your OpenAI API key here:", type="password"
+):
     os.environ["OPENAI_API_KEY"] = api_key
     index = initialize_index(index_name, documents_folder)
 
